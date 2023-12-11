@@ -1,0 +1,79 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                               Crosshair Program |
+//|                                      Developer: Forex Robot Easy |
+//|                                                    Site: forexroboteasy.com |
+//+------------------------------------------------------------------+
+
+//+------------------------------------------------------------------+
+//|                             Crosshair Expert Advisor              |
+//| This EA simplifies chart analysis and enhances precision in forex trading |
+//| It aligns price candles with indicator values in subwindows, enabling pattern identification |
+//| It has ruler mode for precise measurements and distance measurement between price levels |
+//| It provides a user-friendly interface for effective market analysis, strategy development, and risk management |
+//+------------------------------------------------------------------+
+class Crosshair : public CExpertAdvisor
+{
+private:
+   bool rulerMode; // flag to enable/disable ruler mode
+   bool mouseButtonDown; // flag to track mouse button state
+   uint mouseButton; // variable to store mouse button value
+   double startPoint; // variable to store start point of ruler
+
+public:
+   // Initialization function
+   virtual void OnInit()
+   {
+      rulerMode = false;
+      mouseButtonDown = false;
+      startPoint = 0.0;
+   }
+
+   // Deinitialization function
+   virtual void OnDeinit(const int reason)
+   {
+      // Reset ruler mode and mouse button flags
+      rulerMode = false;
+      mouseButtonDown = false;
+   }
+
+   // Function to handle chart event
+   virtual void OnChartEvent(const int id, const long &lparam, const double &dparam, const string &sparam)
+   {
+      if (id == CHARTEVENT_KEYDOWN && sparam == 'R')
+      {
+         rulerMode = !rulerMode; // toggle ruler mode
+      }
+
+      if (id == CHARTEVENT_MOUSE_MOVE)
+      {
+         if (rulerMode)
+         {
+            if (mouseButtonDown && startPoint == 0.0)
+            {
+               startPoint = dparam; // set start point of ruler
+            }
+            else if (!mouseButtonDown && startPoint != 0.0)
+            {
+               double distance = MathAbs(dparam - startPoint); // calculate distance between start and end point
+               Print('Distance: ', distance); // print distance to the terminal
+               startPoint = 0.0; // reset start point
+            }
+         }
+      }
+
+      if (id == CHARTEVENT_MOUSE_BUTTON_DOWN || id == CHARTEVENT_MOUSE_BUTTON_UP)
+      {
+         mouseButtonDown = (id == CHARTEVENT_MOUSE_BUTTON_DOWN); // update mouse button state
+         mouseButton = lparam; // store mouse button value
+      }
+   }
+};
+
+//+------------------------------------------------------------------+
+//| Custom event handler                                               |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+   // Place your trading logic here
+}
